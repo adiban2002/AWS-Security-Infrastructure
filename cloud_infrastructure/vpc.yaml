@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: VPC for DevSecOps Project
+Description: VPC with IPv4 and IPv6
 
 Resources:
+
   DevSecOpsVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -12,7 +13,19 @@ Resources:
         - Key: Name
           Value: devsecops-vpc
 
+  VPCIPv6Block:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      VpcId: !Ref DevSecOpsVPC
+      AmazonProvidedIpv6CidrBlock: true
+
 Outputs:
   VpcId:
-    Description: VPC ID
     Value: !Ref DevSecOpsVPC
+    Export:
+      Name: DevSecOps-VPC-ID
+
+  VpcIpv6:
+    Value: !Select [0, !GetAtt DevSecOpsVPC.Ipv6CidrBlocks]
+    Export:
+      Name: DevSecOps-VPC-IPv6

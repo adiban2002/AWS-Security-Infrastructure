@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: NAT Gateway for DevSecOps Project
+Description: NAT Gateway + Private Routing
 
 Resources:
 
@@ -12,7 +12,34 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt ElasticIP.AllocationId
-      SubnetId: subnet-0c76b537c53a2492c
-      Tags:
-        - Key: Name
-          Value: devsecops-nat
+      SubnetId: !ImportValue DevSecOps-Public-Subnet
+
+  EgressOnlyIGW:
+    Type: AWS::EC2::EgressOnlyInternetGateway
+    Properties:
+      VpcId: !ImportValue DevSecOps-VPC-ID
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !ImportValue DevSecOps-VPC-ID
+
+  PrivateRouteIPv4:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateRouteIPv6:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyIGW
+
+  PrivateSubnetAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Private-Subnet
+      RouteTableId: !Ref PrivateRouteTable

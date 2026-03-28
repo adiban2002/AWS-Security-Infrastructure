@@ -1,15 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Subnets for DevSecOps Project
+Description: Subnets with IPv4 + IPv6
 
 Resources:
 
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: vpc-0590b10eae8df4a81
+      VpcId: !ImportValue DevSecOps-VPC-ID
       CidrBlock: 10.0.1.0/24
+      Ipv6CidrBlock:
+        Fn::Select:
+          - 0
+          - Fn::Cidr:
+              - !ImportValue DevSecOps-VPC-IPv6
+              - 256
+              - 64
       AvailabilityZone: ap-south-1a
       MapPublicIpOnLaunch: true
+      AssignIpv6AddressOnCreation: true
       Tags:
         - Key: Name
           Value: public-subnet
@@ -17,9 +25,29 @@ Resources:
   PrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: vpc-0590b10eae8df4a81
+      VpcId: !ImportValue DevSecOps-VPC-ID
       CidrBlock: 10.0.2.0/24
+      Ipv6CidrBlock:
+        Fn::Select:
+          - 1
+          - Fn::Cidr:
+              - !ImportValue DevSecOps-VPC-IPv6
+              - 256
+              - 64
       AvailabilityZone: ap-south-1a
+      AssignIpv6AddressOnCreation: true
       Tags:
         - Key: Name
           Value: private-subnet
+
+Outputs:
+
+  PublicSubnetId:
+    Value: !Ref PublicSubnet
+    Export:
+      Name: DevSecOps-Public-Subnet
+
+  PrivateSubnetId:
+    Value: !Ref PrivateSubnet
+    Export:
+      Name: DevSecOps-Private-Subnet

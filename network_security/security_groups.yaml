@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Security Group for DevSecOps Project (IPv4 + IPv6, Modular)
+
+Resources:
+
+  DevSecOpsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP, HTTPS (public) and restricted SSH (IPv4 + IPv6)
+      VpcId: !ImportValue DevSecOps-VPC-ID 
+
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: ::/0
+
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: ::/0
+
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 49.37.45.51/32
+
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIpv6: 2405:201:800a:4813:1a8d:2c9:369d:d668/128
+
+      SecurityGroupEgress:
+
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+        - IpProtocol: -1
+          CidrIpv6: ::/0
+
+      Tags:
+        - Key: Name
+          Value: devsecops-sg
+
+Outputs:
+
+  SecurityGroupId:
+    Description: Security Group ID
+    Value: !Ref DevSecOpsSecurityGroup
+    Export:
+      Name: DevSecOps-SG

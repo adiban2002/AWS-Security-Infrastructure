@@ -1,17 +1,46 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Internet Gateway for DevSecOps Project
+Description: Internet Gateway + Routing
 
 Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: devsecops-igw
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: vpc-0590b10eae8df4a81
+      VpcId: !ImportValue DevSecOps-VPC-ID
       InternetGatewayId: !Ref InternetGateway
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !ImportValue DevSecOps-VPC-ID
+
+  PublicRouteIPv4:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicRouteIPv6:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationIpv6CidrBlock: ::/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Public-Subnet
+      RouteTableId: !Ref PublicRouteTable
+
+Outputs:
+  IGW:
+    Value: !Ref InternetGateway
+    Export:
+      Name: DevSecOps-IGW
