@@ -1,13 +1,16 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Subnets with IPv4 + IPv6
+Description: Subnets with IPv4 + IPv6 (Multi-AZ)
 
 Resources:
 
-  PublicSubnet:
+  PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !ImportValue DevSecOps-VPC-ID
       CidrBlock: 10.0.1.0/24
+      AvailabilityZone: ap-south-1a
+      MapPublicIpOnLaunch: true
+      AssignIpv6AddressOnCreation: true
       Ipv6CidrBlock:
         Fn::Select:
           - 0
@@ -15,18 +18,18 @@ Resources:
               - !ImportValue DevSecOps-VPC-IPv6
               - 256
               - 64
-      AvailabilityZone: ap-south-1a
-      MapPublicIpOnLaunch: true
-      AssignIpv6AddressOnCreation: true
       Tags:
         - Key: Name
-          Value: public-subnet
+          Value: public-subnet-a
 
-  PrivateSubnet:
+  PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !ImportValue DevSecOps-VPC-ID
       CidrBlock: 10.0.2.0/24
+      AvailabilityZone: ap-south-1b
+      MapPublicIpOnLaunch: true
+      AssignIpv6AddressOnCreation: true
       Ipv6CidrBlock:
         Fn::Select:
           - 1
@@ -34,20 +37,64 @@ Resources:
               - !ImportValue DevSecOps-VPC-IPv6
               - 256
               - 64
-      AvailabilityZone: ap-south-1a
-      AssignIpv6AddressOnCreation: true
       Tags:
         - Key: Name
-          Value: private-subnet
+          Value: public-subnet-b
+
+  PrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue DevSecOps-VPC-ID
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: ap-south-1a
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock:
+        Fn::Select:
+          - 2
+          - Fn::Cidr:
+              - !ImportValue DevSecOps-VPC-IPv6
+              - 256
+              - 64
+      Tags:
+        - Key: Name
+          Value: private-subnet-a
+
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue DevSecOps-VPC-ID
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: ap-south-1b
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock:
+        Fn::Select:
+          - 3
+          - Fn::Cidr:
+              - !ImportValue DevSecOps-VPC-IPv6
+              - 256
+              - 64
+      Tags:
+        - Key: Name
+          Value: private-subnet-b
 
 Outputs:
 
-  PublicSubnetId:
-    Value: !Ref PublicSubnet
+  PublicSubnetA:
+    Value: !Ref PublicSubnetA
     Export:
-      Name: DevSecOps-Public-Subnet
+      Name: DevSecOps-Public-Subnet-A
 
-  PrivateSubnetId:
-    Value: !Ref PrivateSubnet
+  PublicSubnetB:
+    Value: !Ref PublicSubnetB
     Export:
-      Name: DevSecOps-Private-Subnet
+      Name: DevSecOps-Public-Subnet-B
+
+  PrivateSubnetA:
+    Value: !Ref PrivateSubnetA
+    Export:
+      Name: DevSecOps-Private-Subnet-A
+
+  PrivateSubnetB:
+    Value: !Ref PrivateSubnetB
+    Export:
+      Name: DevSecOps-Private-Subnet-B

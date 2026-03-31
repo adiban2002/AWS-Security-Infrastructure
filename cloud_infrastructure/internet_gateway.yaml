@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Internet Gateway + Routing
+Description: Internet Gateway + Routing (Multi-AZ)
 
 Resources:
 
@@ -33,10 +33,17 @@ Resources:
       DestinationIpv6CidrBlock: ::/0
       GatewayId: !Ref InternetGateway
 
-  PublicSubnetAssociation:
+
+  PublicSubnetAssociationA:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !ImportValue DevSecOps-Public-Subnet
+      SubnetId: !ImportValue DevSecOps-Public-Subnet-A
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnetAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Public-Subnet-B
       RouteTableId: !Ref PublicRouteTable
 
 Outputs:

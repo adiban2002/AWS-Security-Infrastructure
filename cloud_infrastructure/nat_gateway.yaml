@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: NAT Gateway + Private Routing
+Description: NAT Gateway + Private Routing (Multi-AZ Ready)
 
 Resources:
 
@@ -12,7 +12,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt ElasticIP.AllocationId
-      SubnetId: !ImportValue DevSecOps-Public-Subnet
+      SubnetId: !ImportValue DevSecOps-Public-Subnet-A
 
   EgressOnlyIGW:
     Type: AWS::EC2::EgressOnlyInternetGateway
@@ -38,8 +38,14 @@ Resources:
       DestinationIpv6CidrBlock: ::/0
       EgressOnlyInternetGatewayId: !Ref EgressOnlyIGW
 
-  PrivateSubnetAssociation:
+  PrivateSubnetAssociationA:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !ImportValue DevSecOps-Private-Subnet
+      SubnetId: !ImportValue DevSecOps-Private-Subnet-A
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnetAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Private-Subnet-B
       RouteTableId: !Ref PrivateRouteTable
