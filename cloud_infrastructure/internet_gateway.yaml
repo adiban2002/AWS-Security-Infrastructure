@@ -1,10 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Internet Gateway + Routing (Multi-AZ)
+Description: Internet Gateway + Public Routing (Dual Stack, Multi-AZ, Final)
 
 Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: devsecops-igw
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -16,6 +20,11 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !ImportValue DevSecOps-VPC-ID
+      Tags:
+        - Key: Name
+          Value: devsecops-public-rt
+
+  
 
   PublicRouteIPv4:
     Type: AWS::EC2::Route
@@ -33,21 +42,30 @@ Resources:
       DestinationIpv6CidrBlock: ::/0
       GatewayId: !Ref InternetGateway
 
+  
 
   PublicSubnetAssociationA:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn: PublicRouteIPv4
     Properties:
       SubnetId: !ImportValue DevSecOps-Public-Subnet-A
       RouteTableId: !Ref PublicRouteTable
 
   PublicSubnetAssociationB:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn: PublicRouteIPv4
     Properties:
       SubnetId: !ImportValue DevSecOps-Public-Subnet-B
       RouteTableId: !Ref PublicRouteTable
 
 Outputs:
-  IGW:
+
+  DevSecOpsIGW:   
     Value: !Ref InternetGateway
     Export:
       Name: DevSecOps-IGW
+
+  DevSecOpsPublicRouteTable:   
+    Value: !Ref PublicRouteTable
+    Export:
+      Name: DevSecOps-Public-RouteTable

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Subnets with IPv4 + IPv6 (Multi-AZ)
+Description: Subnets with IPv4 + IPv6 (Dual Stack, Multi-AZ, Final)
 
 Resources:
 
@@ -79,22 +79,22 @@ Resources:
 
 Outputs:
 
-  PublicSubnetA:
+  DevSecOpsPublicSubnetA:
     Value: !Ref PublicSubnetA
     Export:
       Name: DevSecOps-Public-Subnet-A
 
-  PublicSubnetB:
+  DevSecOpsPublicSubnetB:
     Value: !Ref PublicSubnetB
     Export:
       Name: DevSecOps-Public-Subnet-B
 
-  PrivateSubnetA:
+  DevSecOpsPrivateSubnetA:
     Value: !Ref PrivateSubnetA
     Export:
       Name: DevSecOps-Private-Subnet-A
 
-  PrivateSubnetB:
+  DevSecOpsPrivateSubnetB:
     Value: !Ref PrivateSubnetB
     Export:
       Name: DevSecOps-Private-Subnet-B

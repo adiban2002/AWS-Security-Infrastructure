@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: NAT Gateway + Private Routing (Multi-AZ Ready)
+Description: NAT Gateway + Private Routing (Dual Stack, Final Stable)
 
 Resources:
 
@@ -7,12 +7,19 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
+      Tags:
+        - Key: Name
+          Value: devsecops-eip
 
   NatGateway:
     Type: AWS::EC2::NatGateway
+    DependsOn: ElasticIP
     Properties:
       AllocationId: !GetAtt ElasticIP.AllocationId
       SubnetId: !ImportValue DevSecOps-Public-Subnet-A
+      Tags:
+        - Key: Name
+          Value: devsecops-nat
 
   EgressOnlyIGW:
     Type: AWS::EC2::EgressOnlyInternetGateway
@@ -23,9 +30,13 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !ImportValue DevSecOps-VPC-ID
+      Tags:
+        - Key: Name
+          Value: devsecops-private-rt
 
   PrivateRouteIPv4:
     Type: AWS::EC2::Route
+    DependsOn: NatGateway
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       DestinationCidrBlock: 0.0.0.0/0
@@ -33,6 +44,7 @@ Resources:
 
   PrivateRouteIPv6:
     Type: AWS::EC2::Route
+    DependsOn: EgressOnlyIGW
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       DestinationIpv6CidrBlock: ::/0
@@ -49,3 +61,15 @@ Resources:
     Properties:
       SubnetId: !ImportValue DevSecOps-Private-Subnet-B
       RouteTableId: !Ref PrivateRouteTable
+
+Outputs:
+
+  DevSecOpsNAT:
+    Value: !Ref NatGateway
+    Export:
+      Name: DevSecOps-NAT
+
+  DevSecOpsPrivateRouteTable:
+    Value: !Ref PrivateRouteTable
+    Export:
+      Name: DevSecOps-Private-RouteTable

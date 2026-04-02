@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Network ACL for DevSecOps Project (IPv4 + IPv6, Multi-AZ Ready)
+Description: Network ACL (Dual Stack, Stateless Safe, Production Ready)
 
 Resources:
 
@@ -11,6 +11,8 @@ Resources:
         - Key: Name
           Value: devsecops-nacl
 
+ 
+
   InboundHTTPIPv4:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -20,7 +22,9 @@ Resources:
       RuleAction: allow
       Egress: false
       CidrBlock: 0.0.0.0/0
-      PortRange: { From: 80, To: 80 }
+      PortRange:
+        From: 80
+        To: 80
 
   InboundHTTPSIPv4:
     Type: AWS::EC2::NetworkAclEntry
@@ -31,7 +35,9 @@ Resources:
       RuleAction: allow
       Egress: false
       CidrBlock: 0.0.0.0/0
-      PortRange: { From: 443, To: 443 }
+      PortRange:
+        From: 443
+        To: 443
 
   InboundEphemeralIPv4:
     Type: AWS::EC2::NetworkAclEntry
@@ -42,8 +48,9 @@ Resources:
       RuleAction: allow
       Egress: false
       CidrBlock: 0.0.0.0/0
-      PortRange: { From: 1024, To: 65535 }
-
+      PortRange:
+        From: 1024
+        To: 65535
 
   InboundHTTPIPv6:
     Type: AWS::EC2::NetworkAclEntry
@@ -54,7 +61,9 @@ Resources:
       RuleAction: allow
       Egress: false
       Ipv6CidrBlock: ::/0
-      PortRange: { From: 80, To: 80 }
+      PortRange:
+        From: 80
+        To: 80
 
   InboundHTTPSIPv6:
     Type: AWS::EC2::NetworkAclEntry
@@ -65,7 +74,9 @@ Resources:
       RuleAction: allow
       Egress: false
       Ipv6CidrBlock: ::/0
-      PortRange: { From: 443, To: 443 }
+      PortRange:
+        From: 443
+        To: 443
 
   InboundEphemeralIPv6:
     Type: AWS::EC2::NetworkAclEntry
@@ -76,28 +87,91 @@ Resources:
       RuleAction: allow
       Egress: false
       Ipv6CidrBlock: ::/0
-      PortRange: { From: 1024, To: 65535 }
+      PortRange:
+        From: 1024
+        To: 65535
 
-  OutboundAllIPv4:
+  
+
+  OutboundEphemeralIPv4:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref DevSecOpsNACL
       RuleNumber: 200
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       Egress: true
       CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 1024
+        To: 65535
 
-  OutboundAllIPv6:
+  OutboundHTTPIPv4:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId: !Ref DevSecOpsNACL
       RuleNumber: 210
-      Protocol: -1
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 80
+        To: 80
+
+  OutboundHTTPSIPv4:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DevSecOpsNACL
+      RuleNumber: 220
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 443
+        To: 443
+
+  OutboundEphemeralIPv6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DevSecOpsNACL
+      RuleNumber: 230
+      Protocol: 6
       RuleAction: allow
       Egress: true
       Ipv6CidrBlock: ::/0
+      PortRange:
+        From: 1024
+        To: 65535
 
+  OutboundHTTPIPv6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DevSecOpsNACL
+      RuleNumber: 240
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      Ipv6CidrBlock: ::/0
+      PortRange:
+        From: 80
+        To: 80
+
+  OutboundHTTPSIPv6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DevSecOpsNACL
+      RuleNumber: 250
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      Ipv6CidrBlock: ::/0
+      PortRange:
+        From: 443
+        To: 443
+
+  
 
   PublicSubnetAssociationA:
     Type: AWS::EC2::SubnetNetworkAclAssociation
@@ -124,5 +198,8 @@ Resources:
       NetworkAclId: !Ref DevSecOpsNACL
 
 Outputs:
-  NACLId:
+
+  DevSecOpsNACL:   
     Value: !Ref DevSecOpsNACL
+    Export:
+      Name: DevSecOps-NACL

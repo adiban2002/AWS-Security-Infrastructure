@@ -20,12 +20,13 @@ Resources:
       AmazonProvidedIpv6CidrBlock: true
 
 Outputs:
-  VpcId:
+
+  DevSecOpsVPCID:   
     Value: !Ref DevSecOpsVPC
     Export:
-      Name: DevSecOps-VPC-ID
+      Name: DevSecOps-VPC-ID   
 
-  VpcIpv6:
+  DevSecOpsVPCIPv6:   
     Value: !Select [0, !GetAtt DevSecOpsVPC.Ipv6CidrBlocks]
     Export:
       Name: DevSecOps-VPC-IPv6
