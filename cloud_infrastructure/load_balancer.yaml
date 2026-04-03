@@ -4,7 +4,7 @@ Description: ALB (Dual Stack IPv4 + IPv6, HTTP → HTTPS, Final Production)
 Parameters:
   CertificateArn:
     Type: String
-    Default: arn:aws:acm:ap-south-1:800557028391:certificate/c423b6fb-c02b-43e0-b2bc-a9d1ad76518a
+    Default: arn:aws:acm:ap-south-1:800557028391:certificate/589dd93a-c66c-4705-9592-0825de635fa2
 
 Resources:
 
