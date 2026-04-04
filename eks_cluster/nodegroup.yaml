@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: EKS Managed Node Group (Production Grade)
+
+Resources:
+
+  EKSNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !ImportValue DevSecOps-EKS-Cluster
+      NodegroupName: devsecops-node-group
+
+      NodeRole: !ImportValue DevSecOps-EKS-Node-Role
+
+      Subnets:
+        - !ImportValue DevSecOps-Private-Subnet-A
+        - !ImportValue DevSecOps-Private-Subnet-B
+
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 2
+        MaxSize: 3
+
+      InstanceTypes:
+        - t3.medium
+
+      AmiType: AL2_x86_64
+
+      DiskSize: 20
+
+      CapacityType: ON_DEMAND
+
+      UpdateConfig:
+        MaxUnavailable: 1
+
+      Labels:
+        environment: production
+        nodegroup: devsecops
+
+      Tags:
+        Name: devsecops-node-group
+
+Outputs:
+
+  NodeGroupName:
+    Description: EKS Node Group Name
+    Value: !Ref EKSNodeGroup

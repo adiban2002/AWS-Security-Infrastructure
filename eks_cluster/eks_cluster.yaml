@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: EKS Cluster
+
+Resources:
+
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: devsecops-eks
+      Version: "1.29"
+      RoleArn: !ImportValue DevSecOps-EKS-Cluster-Role
+
+      ResourcesVpcConfig:
+        SubnetIds:
+          - !ImportValue DevSecOps-Public-Subnet-A
+          - !ImportValue DevSecOps-Public-Subnet-B
+          - !ImportValue DevSecOps-Private-Subnet-A
+          - !ImportValue DevSecOps-Private-Subnet-B
+
+        EndpointPublicAccess: true
+
+Outputs:
+
+  ClusterName:
+    Value: !Ref EKSCluster
+    Export:
+      Name: DevSecOps-EKS-Cluster
