@@ -9,6 +9,8 @@ Resources:
       ClusterName: !ImportValue DevSecOps-EKS-Cluster
       NodegroupName: devsecops-node-group
 
+      Version: "1.32"
+
       NodeRole: !ImportValue DevSecOps-EKS-Node-Role
 
       Subnets:

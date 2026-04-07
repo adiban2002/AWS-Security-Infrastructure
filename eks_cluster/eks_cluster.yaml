@@ -7,7 +7,7 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       Name: devsecops-eks
-      Version: "1.30"
+      Version: "1.32"
       RoleArn: !ImportValue DevSecOps-EKS-Cluster-Role
 
       ResourcesVpcConfig:

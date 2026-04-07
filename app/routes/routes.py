@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 import logging
 
 from app.services.aws_service import parameter_store, secrets_manager
+from app.services.auth.routes import router as auth_router
+from app.services.user.routes import router as user_router
+from app.services.payment.routes import router as payment_router
+from app.services.notifications.routes import router as notifications_router
 
 logger = logging.getLogger("routes")
-
 
 router = APIRouter(
     prefix="/api/v1",
@@ -24,6 +27,7 @@ def public_endpoint():
         "message": "Public endpoint working",
         "status": "success"
     }
+
 
 @router.get("/secure-data", dependencies=[Depends(verify_request)])
 def secure_data():
@@ -67,6 +71,13 @@ def get_config():
             detail="Failed to fetch configuration"
         )
 
+
 @router.get("/health")
 def route_health():
     return {"route": "healthy"}
+
+
+router.include_router(auth_router)
+router.include_router(user_router)
+router.include_router(payment_router)
+router.include_router(notifications_router)
