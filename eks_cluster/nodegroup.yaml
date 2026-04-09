@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: EKS Managed Node Group (Production Grade)
+Description: EKS Managed Node Group (Production Grade 1.33)
 
 Resources:
 
@@ -7,9 +7,10 @@ Resources:
     Type: AWS::EKS::Nodegroup
     Properties:
       ClusterName: !ImportValue DevSecOps-EKS-Cluster
-      NodegroupName: devsecops-node-group
+      NodegroupName: devsecops-node-group-v1-33 
 
-      Version: "1.32"
+      
+      Version: "1.33"
 
       NodeRole: !ImportValue DevSecOps-EKS-Node-Role
 
@@ -25,7 +26,8 @@ Resources:
       InstanceTypes:
         - t3.medium
 
-      AmiType: AL2_x86_64
+      
+      AmiType: AL2023_x86_64_STANDARD
 
       DiskSize: 20
 
@@ -37,6 +39,7 @@ Resources:
       Labels:
         environment: production
         nodegroup: devsecops
+        kubernetes-version: "1.33"
 
       Tags:
         Name: devsecops-node-group
