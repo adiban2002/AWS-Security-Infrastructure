@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Aurora DB - Hardcoded Password Final Version"
+
+Resources:
+  DBSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: "Hardcoded Subnet Group"
+      SubnetIds: 
+        - "subnet-058da73470c68b6b2" 
+        - "subnet-059517c225a03d9b0" 
+      Tags:
+        - Key: "Name"
+          Value: "devsecops-db-subnet-group"
+
+  AuroraDBCluster:
+    Type: "AWS::RDS::DBCluster"
+    Properties:
+      Engine: "aurora-mysql"
+      EngineVersion: "8.0.mysql_aurora.3.04.1"
+      MasterUsername: "db_admin" 
+      MasterUserPassword: "Complex_Sec_99_Auth" 
+      DBSubnetGroupName: !Ref "DBSubnetGroup"
+      VpcSecurityGroupIds:
+        - "sg-0e7578d01fbf309bd" 
+      StorageEncrypted: true
+      DeletionProtection: false
+
+  AuroraDBInstance:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      DBClusterIdentifier: !Ref "AuroraDBCluster"
+      DBInstanceClass: "db.t3.medium"
+      Engine: "aurora-mysql"
+      DBSubnetGroupName: !Ref "DBSubnetGroup"

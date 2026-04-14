@@ -1,77 +1,74 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Security Group for DevSecOps Project (Dual Stack, HTTP + HTTPS + SSH)
+Description: "Fixed Security Groups for DevSecOps Project - Final Locked"
 
 Parameters:
   MyIPv4:
-    Type: String
-    Default: 152.58.177.22/32
-    Description: Your IPv4 address for SSH
-
+    Type: "String"
+    Default: "152.58.177.22/32"
   MyIPv6:
-    Type: String
-    Default: 2409:40e0:101e:5e4e:b38f:553c:2501:a2d4/128
-    Description: Your IPv6 address for SSH
+    Type: "String"
+    Default: "2409:40e0:101e:5e4e:b38f:553c:2501:a2d4/128"
 
 Resources:
-
   DevSecOpsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: Allow HTTP/HTTPS public and restricted SSH (IPv4 + IPv6)
-      VpcId: !ImportValue DevSecOps-VPC-ID
-
+      GroupDescription: "Allow HTTP/HTTPS public and restricted SSH"
+      VpcId: !ImportValue "DevSecOps-VPC-ID"
       SecurityGroupIngress:
-
-        
-        - IpProtocol: tcp
+        - IpProtocol: "tcp"
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-
-        - IpProtocol: tcp
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
           FromPort: 80
           ToPort: 80
-          CidrIpv6: ::/0
-
-        
-        - IpProtocol: tcp
+          CidrIpv6: "::/0"
+        - IpProtocol: "tcp"
           FromPort: 443
           ToPort: 443
-          CidrIp: 0.0.0.0/0
-
-        - IpProtocol: tcp
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
           FromPort: 443
           ToPort: 443
-          CidrIpv6: ::/0
-
-        
-        - IpProtocol: tcp
+          CidrIpv6: "::/0"
+        - IpProtocol: "tcp"
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref MyIPv4
-
-        - IpProtocol: tcp
+          CidrIp: !Ref "MyIPv4"
+        - IpProtocol: "tcp"
           FromPort: 22
           ToPort: 22
-          CidrIpv6: !Ref MyIPv6
-
+          CidrIpv6: !Ref "MyIPv6"
       SecurityGroupEgress:
-
-        
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
-
-        
-        - IpProtocol: -1
-          CidrIpv6: ::/0
-
+        - IpProtocol: "-1"
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "-1"
+          CidrIpv6: "::/0"
       Tags:
-        - Key: Name
-          Value: devsecops-sg
+        - Key: "Name"
+          Value: "devsecops-main-sg"
+
+  DBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Allow Database access only from the App SG"
+      VpcId: !ImportValue "DevSecOps-VPC-ID"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref "DevSecOpsSecurityGroup" 
+      Tags:
+        - Key: "Name"
+          Value: "devsecops-db-sg"
 
 Outputs:
-
   DevSecOpsSG:   
-    Value: !Ref DevSecOpsSecurityGroup
+    Value: !Ref "DevSecOpsSecurityGroup"
     Export:
-      Name: DevSecOps-SG
+      Name: "DevSecOps-SG"
+  DBSecurityGroupID:
+    Value: !Ref "DBSecurityGroup"
+    Export:
+      Name: "DBSecurityGroupID"

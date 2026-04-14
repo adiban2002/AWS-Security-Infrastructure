@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Internet Gateway + Public Routing (Dual Stack, Multi-AZ, Final)
+Description: Internet Gateway + Public Routing (Dual Stack, Multi-AZ, Final) - Updated with Private Subnet Routing
 
 Resources:
 
@@ -24,8 +24,6 @@ Resources:
         - Key: Name
           Value: devsecops-public-rt
 
-  
-
   PublicRouteIPv4:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
@@ -42,8 +40,6 @@ Resources:
       DestinationIpv6CidrBlock: ::/0
       GatewayId: !Ref InternetGateway
 
-  
-
   PublicSubnetAssociationA:
     Type: AWS::EC2::SubnetRouteTableAssociation
     DependsOn: PublicRouteIPv4
@@ -56,6 +52,19 @@ Resources:
     DependsOn: PublicRouteIPv4
     Properties:
       SubnetId: !ImportValue DevSecOps-Public-Subnet-B
+      RouteTableId: !Ref PublicRouteTable
+
+  
+  PrivateSubnetAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Private-Subnet-A
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnetAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !ImportValue DevSecOps-Private-Subnet-B
       RouteTableId: !Ref PublicRouteTable
 
 Outputs:
