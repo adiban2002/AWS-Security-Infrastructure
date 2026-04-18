@@ -1,32 +1,20 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from config_management.parameter_store import ssm_manager
+from config_management.secrets_manager import secrets_provider
 
 
-DB_ENDPOINT = "devsecops-db-auroradbcluster-uecwzdckzkov.cluster-cdso4micm2ww.ap-south-1.rds.amazonaws.com"
-DB_NAME = "security_infrastructure_db" 
-DB_USER = "db_admin"
-DB_PASS = "Complex_Sec_99_Auth" 
-DATABASE_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASS}@{DB_ENDPOINT}/{DB_NAME}"
-engine = create_engine(
-    DATABASE_URL, 
-    pool_size=10, 
-    max_overflow=20,
-    pool_pre_ping=True
-)
+print("Fetching DB configurations from AWS...")
+DB_ENDPOINT = ssm_manager.get_parameter("/findmyproject/db_endpoint")
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+db_creds = secrets_provider.get_secret("findmyproject/db_creds")
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+if db_creds:
+    DB_USER = db_creds.get('username')
+    DB_PASSWORD = db_creds.get('password')
+else:
+    raise Exception("Could not retrieve DB credentials from Secrets Manager")
 
-if __name__ == "__main__":
-    print(f"--- DevSecOps Infrastructure DB Configuration ---")
-    print(f"Host: {DB_ENDPOINT}")
-    print(f"Status: Configured for Aditya Banerjee")
+DB_NAME = "devsecops_db" 
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_ENDPOINT}/{DB_NAME}"
+
+print("DB Configuration loaded successfully from Cloud.")

@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Aurora DB - Hardcoded Password Final Version"
+Description: "Aurora DB - Secure Version using Dynamic Secrets"
 
 Resources:
   DBSubnetGroup:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
-      DBSubnetGroupDescription: "Hardcoded Subnet Group"
+      DBSubnetGroupDescription: "Secure Subnet Group for DevSecOps"
       SubnetIds: 
         - "subnet-058da73470c68b6b2" 
         - "subnet-059517c225a03d9b0" 
@@ -18,8 +18,8 @@ Resources:
     Properties:
       Engine: "aurora-mysql"
       EngineVersion: "8.0.mysql_aurora.3.04.1"
-      MasterUsername: "db_admin" 
-      MasterUserPassword: "Complex_Sec_99_Auth" 
+      MasterUsername: "{{resolve:secretsmanager:findmyproject/db_creds:SecretString:username}}"
+      MasterUserPassword: "{{resolve:secretsmanager:findmyproject/db_creds:SecretString:password}}"
       DBSubnetGroupName: !Ref "DBSubnetGroup"
       VpcSecurityGroupIds:
         - "sg-0e7578d01fbf309bd" 
