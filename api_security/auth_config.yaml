@@ -1,0 +1,31 @@
+jwt_security_profile:
+  algorithm: "RS256"
+  token_issuer: "https://auth.devsecops.internal"
+  token_audience: "api://secure-microservices-cluster"
+  token_expiry_leeway_seconds: 60
+
+
+api_hardening:
+  enforce_ssl_only: true
+  strip_incoming_headers:
+    - "Server"
+    - "X-Powered-By"
+    - "X-AspNet-Version"
+  enforced_security_headers:
+    Content-Security-Policy: "default-src 'none'; frame-ancestors 'none'; sandbox;"
+    X-Content-Type-Options: "nosniff"
+    X-Frame-Options: "DENY"
+    X-XSS-Protection: "1; mode=block"
+    Strict-Transport-Security: "max-age=63072000; includeSubDomains; preload"
+
+
+rate_limiting_tiers:
+  anonymous_client:
+    burst_limit: 20
+    rate_limit: 10
+  authenticated_standard:
+    burst_limit: 150
+    rate_limit: 80
+  authenticated_internal_service:
+    burst_limit: 1000
+    rate_limit: 500

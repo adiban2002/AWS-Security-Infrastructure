@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Standalone Notification Topic for System Alerts"
+
+Resources:
+  DevSecOpsNotificationTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "SystemAlerts"
+
+Outputs:
+  TopicARN:
+    Description: "The Dynamic ARN for the SNS Topic"
+    Value: !Ref DevSecOpsNotificationTopic
+    Export:
+      Name: "devsecops-notification-topic-arn"

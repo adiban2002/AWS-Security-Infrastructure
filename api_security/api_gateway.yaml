@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Production-Grade API Gateway Component with Strict Request Validation and Throttling Policies"
+
+Resources:
+  SecureApiGateway:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "devsecops-secure-api-gateway"
+      Description: "Centralized Secure Gateway Proxy for Microservices Infrastructure"
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiRequestValidator:
+    Type: "AWS::ApiGateway::RequestValidator"
+    Properties:
+      RestApiId: !Ref SecureApiGateway
+      Name: "devsecops-strict-request-validator"
+      ValidateRequestBody: true
+      ValidateRequestParameters: true
+
+  GatewayProxyResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      RestApiId: !Ref SecureApiGateway
+      ParentId: !GetAtt SecureApiGateway.RootResourceId
+      PathPart: "{proxy+}"
+
+  ApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - GatewayProxyMethod
+    Properties:
+      RestApiId: !Ref SecureApiGateway
+      Description: "Automated Secure Infrastructure Deployment Stage"
+
+  ApiGatewayStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref ApiDeployment
+      RestApiId: !Ref SecureApiGateway
+      StageName: "prod"
+      MethodSettings:
+        - HttpMethod: "*"
+          ResourcePath: "/*"
+          ThrottlingBurstLimit: 100
+          ThrottlingRateLimit: 50
+          MetricsEnabled: true 
+  
+  GatewayProxyMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref SecureApiGateway
+      ResourceId: !Ref GatewayProxyResource
+      HttpMethod: "ANY"
+      AuthorizationType: "NONE" 
+      RequestValidatorId: !Ref ApiRequestValidator
+      Integration:
+        Type: "MOCK" 
+        IntegrationResponses:
+          - StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+
+Outputs:
+  SecureApiEndpoint:
+    Description: "Production API Stage Endpoint URL"
+    Value: !Sub "https://${SecureApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
