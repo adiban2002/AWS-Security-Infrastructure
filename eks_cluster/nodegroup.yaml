@@ -7,16 +7,14 @@ Resources:
     Type: AWS::EKS::Nodegroup
     Properties:
       ClusterName: !ImportValue DevSecOps-EKS-Cluster
-      NodegroupName: devsecops-node-group-v1-33 
-
-      
+      NodegroupName: devsecops-node-group-v1-33
       Version: "1.33"
-
       NodeRole: !ImportValue DevSecOps-EKS-Node-Role
 
+      # 🚨 লুপ ভাঙার আসল চাবিকাঠি: প্রাইভেটের জায়গায় ডিরেক্ট পাবলিক সাবনেট এক্সপোর্ট ম্যাপ করা
       Subnets:
-        - !ImportValue DevSecOps-Private-Subnet-A
-        - !ImportValue DevSecOps-Private-Subnet-B
+        - !ImportValue DevSecOps-Public-Subnet-A
+        - !ImportValue DevSecOps-Public-Subnet-B
 
       ScalingConfig:
         MinSize: 1
@@ -26,11 +24,8 @@ Resources:
       InstanceTypes:
         - t3.medium
 
-      
       AmiType: AL2023_x86_64_STANDARD
-
       DiskSize: 20
-
       CapacityType: ON_DEMAND
 
       UpdateConfig:

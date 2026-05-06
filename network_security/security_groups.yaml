@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Fixed Security Groups for DevSecOps Project - Final Locked"
+Description: "Fixed Security Groups for DevSecOps Project - No Circular Dependency Locked"
 
 Parameters:
   MyIPv4:
@@ -48,6 +48,14 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "devsecops-main-sg"
+  DevSecOpsSelfIngressRule:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref "DevSecOpsSecurityGroup"
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+      SourceSecurityGroupId: !Ref "DevSecOpsSecurityGroup"
 
   DBSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
