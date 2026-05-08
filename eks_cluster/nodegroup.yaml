@@ -1,17 +1,16 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: EKS Managed Node Group (Production Grade 1.33)
+Description: "EKS Managed Node Group (Production Grade 1.33)"
 
 Resources:
-
   EKSNodeGroup:
-    Type: AWS::EKS::Nodegroup
+    Type: "AWS::EKS::Nodegroup"
     Properties:
-      ClusterName: !ImportValue DevSecOps-EKS-Cluster
-      NodegroupName: devsecops-node-group-v1-33
+      ClusterName: "devsecops-eks" 
+      NodegroupName: "devsecops-node-group-v1-33"
       Version: "1.33"
       NodeRole: !ImportValue DevSecOps-EKS-Node-Role
 
-      # 🚨 লুপ ভাঙার আসল চাবিকাঠি: প্রাইভেটের জায়গায় ডিরেক্ট পাবলিক সাবনেট এক্সপোর্ট ম্যাপ করা
+      
       Subnets:
         - !ImportValue DevSecOps-Public-Subnet-A
         - !ImportValue DevSecOps-Public-Subnet-B
@@ -22,25 +21,23 @@ Resources:
         MaxSize: 3
 
       InstanceTypes:
-        - t3.medium
+        - "t3.medium"
 
-      AmiType: AL2023_x86_64_STANDARD
+      AmiType: "AL2023_x86_64_STANDARD"
       DiskSize: 20
-      CapacityType: ON_DEMAND
+      CapacityType: "ON_DEMAND"
 
       UpdateConfig:
         MaxUnavailable: 1
 
       Labels:
-        environment: production
-        nodegroup: devsecops
-        kubernetes-version: "1.33"
+        environment: "production"
+        nodegroup: "devsecops"
 
       Tags:
-        Name: devsecops-node-group
+        Name: "devsecops-node-group"
 
 Outputs:
-
   NodeGroupName:
-    Description: EKS Node Group Name
+    Description: "EKS Node Group Name"
     Value: !Ref EKSNodeGroup
