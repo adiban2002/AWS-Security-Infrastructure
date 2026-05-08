@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "IAM Roles for EKS Cluster and Node Group (Final Production - Standard Fix)"
+Description: "IAM Roles for EKS Cluster and Node Group - v1.33 Standard Fix"
 
 Resources:
   EKSClusterRole:
@@ -34,19 +34,18 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" 
       Tags:
         - Key: "Name"
           Value: "devsecops-eks-node-role"
 
 Outputs:
   ClusterRoleArn:
-    Description: "EKS Cluster Role ARN"
     Value: !GetAtt EKSClusterRole.Arn
     Export:
       Name: "DevSecOps-EKS-Cluster-Role"
 
   NodeRoleArn:
-    Description: "EKS Node Role ARN"
     Value: !GetAtt EKSNodeRole.Arn
     Export:
       Name: "DevSecOps-EKS-Node-Role"

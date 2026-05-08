@@ -1,19 +1,26 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "EKS Cluster Configuration for DevSecOps Project"
+Description: "EKS Cluster Configuration for DevSecOps Project - Fresh Start"
 
 Resources:
   DevSecOpsEKSCluster:
     Type: "AWS::EKS::Cluster"
     Properties:
       Name: "devsecops-eks"
-      Version: "1.33"  
+      Version: "1.33"
       RoleArn: !ImportValue DevSecOps-EKS-Cluster-Role
+      AccessConfig:
+        AuthenticationMode: API_AND_CONFIG_MAP
+        BootstrapClusterCreatorAdminPermissions: true
       ResourcesVpcConfig:
         SubnetIds:
           - !ImportValue DevSecOps-Public-Subnet-A
           - !ImportValue DevSecOps-Public-Subnet-B
           - !ImportValue DevSecOps-Private-Subnet-A
           - !ImportValue DevSecOps-Private-Subnet-B
-        
         EndpointPublicAccess: true
         EndpointPrivateAccess: true
+      Tags:
+        - Key: "Action"
+          Value: "NetworkRefresh"
+        - Key: "Project"
+          Value: "DevSecOps"

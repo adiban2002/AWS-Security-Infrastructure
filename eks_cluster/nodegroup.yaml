@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "EKS Managed Node Group (Production Grade 1.33)"
+Description: "EKS Managed Node Group (Final Production Fix - v1.33)"
 
 Resources:
   EKSNodeGroup:
@@ -36,6 +36,7 @@ Resources:
 
       Tags:
         Name: "devsecops-node-group"
+        "kubernetes.io/cluster/devsecops-eks": "owned"
 
 Outputs:
   NodeGroupName:

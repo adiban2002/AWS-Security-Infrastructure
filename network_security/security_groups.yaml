@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Fixed Security Groups for DevSecOps Project - No Circular Dependency Locked"
+Description: "Fixed Security Groups for DevSecOps Project - Added EKS Control Plane Ingress"
 
 Parameters:
   MyIPv4:
@@ -48,6 +48,8 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "devsecops-main-sg"
+
+  
   DevSecOpsSelfIngressRule:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
@@ -56,6 +58,16 @@ Resources:
       FromPort: -1
       ToPort: -1
       SourceSecurityGroupId: !Ref "DevSecOpsSecurityGroup"
+
+  
+  EKSControlPlaneIngressRule:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref "DevSecOpsSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 443
+      ToPort: 10250
+      SourceSecurityGroupId: !ImportValue "DevSecOps-EKS-Cluster-SG"
 
   DBSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
