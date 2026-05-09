@@ -14,9 +14,11 @@ spec:
       labels:
         app: devsecops-app
     spec:
+      # 🚀 এই লাইনটি তোমার তৈরি করা IAM Service Account-কে পডের সাথে যুক্ত করবে
+      serviceAccountName: devsecops-app-sa 
       containers:
       - name: devsecops-container
-        image: 800557028391.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:v3 # 🚀 v3 ট্যাগ সেট করা হলো
+        image: 800557028391.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:v3
         imagePullPolicy: Always
         ports:
           - containerPort: 8003 
@@ -27,6 +29,12 @@ spec:
           limits:
             cpu: "500m"
             memory: "512Mi"
+        
+        # এখানে কোনো হার্ডকোডেড AWS Key দেওয়ার দরকার নেই, টোকেন দিয়ে কাজ হবে
+        env:
+          - name: AWS_DEFAULT_REGION
+            value: "ap-south-1"
+
         readinessProbe:
           httpGet:
             path: /health
