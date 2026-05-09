@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "IAM Roles for EKS Cluster and Node Group - v1.33 Standard Fix"
+Description: "IAM Roles for EKS Cluster and Node Group with ALB Controller Support"
 
 Resources:
+  # ১. EKS ক্লাস্টারের জন্য রোল
   EKSClusterRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -14,12 +15,12 @@ Resources:
             Action: "sts:AssumeRole"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-        - "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
         - "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
       Tags:
         - Key: "Name"
           Value: "devsecops-eks-cluster-role"
 
+  # ২. ওয়ার্কার নডগুলোর জন্য রোল (ALB এবং SSM সাপোর্টসহ)
   EKSNodeRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -34,7 +35,9 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" 
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        # লোড ব্যালেন্সার কন্ট্রোলারের জন্য প্রয়োজনীয় (যদি আলাদা পলিসি না থাকে)
+        - "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess" 
       Tags:
         - Key: "Name"
           Value: "devsecops-eks-node-role"
@@ -44,7 +47,6 @@ Outputs:
     Value: !GetAtt EKSClusterRole.Arn
     Export:
       Name: "DevSecOps-EKS-Cluster-Role"
-
   NodeRoleArn:
     Value: !GetAtt EKSNodeRole.Arn
     Export:

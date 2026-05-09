@@ -1,17 +1,19 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "EKS Cluster Configuration for DevSecOps Project - Fresh Start"
+Description: "EKS Cluster Configuration for DevSecOps Project - Version 1.33"
 
 Resources:
   DevSecOpsEKSCluster:
     Type: "AWS::EKS::Cluster"
     Properties:
       Name: "devsecops-eks"
-      Version: "1.33"
+      Version: "1.33" # 🚀 তোমার কারেন্ট ভার্সন সেট করা হলো
       RoleArn: !ImportValue DevSecOps-EKS-Cluster-Role
       AccessConfig:
         AuthenticationMode: API_AND_CONFIG_MAP
         BootstrapClusterCreatorAdminPermissions: true
       ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !ImportValue DevSecOps-SG # আগের মেসেজে যেটা অ্যাড করেছিলাম
         SubnetIds:
           - !ImportValue DevSecOps-Public-Subnet-A
           - !ImportValue DevSecOps-Public-Subnet-B
@@ -24,3 +26,13 @@ Resources:
           Value: "NetworkRefresh"
         - Key: "Project"
           Value: "DevSecOps"
+
+Outputs:
+  ClusterName:
+    Value: !Ref DevSecOpsEKSCluster
+    Export:
+      Name: "DevSecOps-Cluster-Name"
+  ClusterEndpoint:
+    Value: !GetAtt DevSecOpsEKSCluster.Endpoint
+    Export:
+      Name: "DevSecOps-Cluster-Endpoint"

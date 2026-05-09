@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Aurora DB - Secure Version using Dynamic Secrets"
+Description: "Aurora DB - Fix Version Error and Update Security Group"
 
 Resources:
   DBSubnetGroup:
@@ -7,8 +7,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: "Secure Subnet Group for DevSecOps"
       SubnetIds: 
-        - "subnet-058da73470c68b6b2" 
-        - "subnet-059517c225a03d9b0" 
+        - !ImportValue DevSecOps-Private-Subnet-A
+        - !ImportValue DevSecOps-Private-Subnet-B
       Tags:
         - Key: "Name"
           Value: "devsecops-db-subnet-group"
@@ -17,12 +17,12 @@ Resources:
     Type: "AWS::RDS::DBCluster"
     Properties:
       Engine: "aurora-mysql"
-      EngineVersion: "8.0.mysql_aurora.3.04.1"
+      # EngineVersion সরিয়ে দিলাম যাতে ভার্সন নিয়ে কোনো ক্যাচাল না হয়
       MasterUsername: "{{resolve:secretsmanager:findmyproject/db_creds:SecretString:username}}"
       MasterUserPassword: "{{resolve:secretsmanager:findmyproject/db_creds:SecretString:password}}"
       DBSubnetGroupName: !Ref "DBSubnetGroup"
       VpcSecurityGroupIds:
-        - "sg-0e7578d01fbf309bd" 
+        - !ImportValue DBSecurityGroupID # এটিই আমাদের মেইন লক্ষ্য
       StorageEncrypted: true
       DeletionProtection: false
 

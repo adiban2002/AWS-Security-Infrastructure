@@ -1,94 +1,70 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Fixed Security Groups for DevSecOps Project - Added EKS Control Plane Ingress"
-
-Parameters:
-  MyIPv4:
-    Type: "String"
-    Default: "152.58.177.22/32"
-  MyIPv6:
-    Type: "String"
-    Default: "2409:40e0:101e:5e4e:b38f:553c:2501:a2d4/128"
+Description: "Security Groups for DevSecOps Project - Refreshed Version"
 
 Resources:
+  # ১. মেইন সিকিউরিটি গ্রুপ (EKS Nodes-এর জন্য)
   DevSecOpsSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: "Allow HTTP/HTTPS public and restricted SSH"
-      VpcId: !ImportValue "DevSecOps-VPC-ID"
+      GroupDescription: "Security group for EKS Nodes"
+      VpcId: !ImportValue DevSecOps-VPC-ID
       SecurityGroupIngress:
-        - IpProtocol: "tcp"
-          FromPort: 80
-          ToPort: 80
-          CidrIp: "0.0.0.0/0"
-        - IpProtocol: "tcp"
-          FromPort: 80
-          ToPort: 80
-          CidrIpv6: "::/0"
-        - IpProtocol: "tcp"
-          FromPort: 443
-          ToPort: 443
-          CidrIp: "0.0.0.0/0"
-        - IpProtocol: "tcp"
-          FromPort: 443
-          ToPort: 443
-          CidrIpv6: "::/0"
-        - IpProtocol: "tcp"
+        # SSH (নিজের আইপি দিয়ে পরে রেস্ট্রিক্ট করতে পারো)
+        - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref "MyIPv4"
-        - IpProtocol: "tcp"
-          FromPort: 22
-          ToPort: 22
-          CidrIpv6: !Ref "MyIPv6"
-      SecurityGroupEgress:
-        - IpProtocol: "-1"
-          CidrIp: "0.0.0.0/0"
-        - IpProtocol: "-1"
-          CidrIpv6: "::/0"
+          CidrIp: 0.0.0.0/0
+        # তোমার অ্যাপ পোর্ট (Server runs on 8003)
+        - IpProtocol: tcp
+          FromPort: 8003
+          ToPort: 8003
+          CidrIp: 0.0.0.0/0
+        # K8s Internal Communication
+        - IpProtocol: tcp
+          FromPort: 10250
+          ToPort: 10250
+          SourceSecurityGroupId: !Ref ALBSecurityGroup # ALB থেকে ট্রাফিক আসার জন্য
       Tags:
-        - Key: "Name"
-          Value: "devsecops-main-sg"
+        - Key: Name
+          Value: devsecops-main-sg
 
-  
-  DevSecOpsSelfIngressRule:
-    Type: "AWS::EC2::SecurityGroupIngress"
-    Properties:
-      GroupId: !Ref "DevSecOpsSecurityGroup"
-      IpProtocol: "-1"
-      FromPort: -1
-      ToPort: -1
-      SourceSecurityGroupId: !Ref "DevSecOpsSecurityGroup"
-
-  
-  EKSControlPlaneIngressRule:
-    Type: "AWS::EC2::SecurityGroupIngress"
-    Properties:
-      GroupId: !Ref "DevSecOpsSecurityGroup"
-      IpProtocol: "tcp"
-      FromPort: 443
-      ToPort: 10250
-      SourceSecurityGroupId: !ImportValue "DevSecOps-EKS-Cluster-SG"
-
+  # ২. ডাটাবেস সিকিউরিটি গ্রুপ
   DBSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: "Allow Database access only from the App SG"
-      VpcId: !ImportValue "DevSecOps-VPC-ID"
+      GroupDescription: "Allow Aurora DB Access"
+      VpcId: !ImportValue DevSecOps-VPC-ID
       SecurityGroupIngress:
-        - IpProtocol: "tcp"
+        - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          SourceSecurityGroupId: !Ref "DevSecOpsSecurityGroup" 
+          SourceSecurityGroupId: !Ref DevSecOpsSecurityGroup # শুধু নোড থেকে এক্সেস পাবে
       Tags:
-        - Key: "Name"
-          Value: "devsecops-db-sg"
+        - Key: Name
+          Value: devsecops-db-sg-v2 # নামটা একটু বদলে দিলাম যাতে পুরনোটার সাথে না গোলায়
+
+  # ৩. ALB সিকিউরিটি গ্রুপ (যদি তুমি আলাদা করে এখানে রাখতে চাও)
+  ALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "ALB Public Access"
+      VpcId: !ImportValue DevSecOps-VPC-ID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
 
 Outputs:
-  DevSecOpsSG:   
-    Value: !Ref "DevSecOpsSecurityGroup"
+  DevSecOpsSGID:
+    Value: !Ref DevSecOpsSecurityGroup
     Export:
-      Name: "DevSecOps-SG"
+      Name: DevSecOps-SG
   DBSecurityGroupID:
-    Value: !Ref "DBSecurityGroup"
+    Value: !Ref DBSecurityGroup
     Export:
-      Name: "DBSecurityGroupID"
+      Name: DBSecurityGroupID

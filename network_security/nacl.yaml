@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Fixed Network ACL for DevSecOps - String Fixed"
+Description: "Fixed Network ACL for DevSecOps - HTTPS and Ephemeral Ports Added"
 
 Resources:
   DevSecOpsNACL:
@@ -22,6 +22,20 @@ Resources:
       PortRange:
         From: 80
         To: 80
+
+  # 🚀 [ADDED] HTTPS ট্রাফিকের জন্য ৪৪৩ পোর্ট
+  InboundHTTPS:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "DevSecOpsNACL"
+      RuleNumber: 105
+      Protocol: 6
+      RuleAction: "allow"
+      Egress: false
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: 443
+        To: 443
 
   InboundAurora:
     Type: "AWS::EC2::NetworkAclEntry"

@@ -16,11 +16,10 @@ spec:
     spec:
       containers:
       - name: devsecops-container
-        image: 800557028391.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
+        image: 800557028391.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:v3 # 🚀 v3 ট্যাগ সেট করা হলো
         imagePullPolicy: Always
         ports:
           - containerPort: 8003 
-
         resources:
           requests:
             cpu: "200m"
@@ -28,24 +27,15 @@ spec:
           limits:
             cpu: "500m"
             memory: "512Mi"
-
-        
         readinessProbe:
           httpGet:
             path: /health
             port: 8003
           initialDelaySeconds: 15
           periodSeconds: 10
-
         livenessProbe:
           httpGet:
             path: /health
             port: 8003
           initialDelaySeconds: 30
           periodSeconds: 15
-
-        env:
-          - name: ENVIRONMENT
-            value: "production"
-          - name: PORT
-            value: "8003" 
