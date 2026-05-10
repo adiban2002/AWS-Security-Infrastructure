@@ -3,7 +3,7 @@ jwt_security_profile:
   token_issuer: "https://auth.devsecops.internal"
   token_audience: "api://secure-microservices-cluster"
   token_expiry_leeway_seconds: 60
-
+  jwks_uri: "https://auth.devsecops.internal/.well-known/jwks.json"
 
 api_hardening:
   enforce_ssl_only: true
@@ -11,13 +11,14 @@ api_hardening:
     - "Server"
     - "X-Powered-By"
     - "X-AspNet-Version"
+    - "Via" 
   enforced_security_headers:
-    Content-Security-Policy: "default-src 'none'; frame-ancestors 'none'; sandbox;"
+    Content-Security-Policy: "default-src 'self'; frame-ancestors 'none'; object-src 'none';"
     X-Content-Type-Options: "nosniff"
     X-Frame-Options: "DENY"
     X-XSS-Protection: "1; mode=block"
     Strict-Transport-Security: "max-age=63072000; includeSubDomains; preload"
-
+    Referrer-Policy: "no-referrer" 
 
 rate_limiting_tiers:
   anonymous_client:
@@ -29,3 +30,6 @@ rate_limiting_tiers:
   authenticated_internal_service:
     burst_limit: 1000
     rate_limit: 500
+  authenticated_admin:
+    burst_limit: 5000
+    rate_limit: 2000

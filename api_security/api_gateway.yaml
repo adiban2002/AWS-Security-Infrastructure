@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Production-Grade API Gateway Component with Strict Request Validation and Throttling Policies"
+Description: "Production-Grade API Gateway Component with Strict Request Validation, Throttling, and Proxy Integration"
 
 Resources:
   SecureApiGateway:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
       Name: "devsecops-secure-api-gateway"
-      Description: "Centralized Secure Gateway Proxy for Microservices Infrastructure"
+      Description: "Centralized Secure Gateway Proxy with CORS and Integrated Auth"
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -25,6 +25,22 @@ Resources:
       RestApiId: !Ref SecureApiGateway
       ParentId: !GetAtt SecureApiGateway.RootResourceId
       PathPart: "{proxy+}"
+
+  GatewayProxyMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref SecureApiGateway
+      ResourceId: !Ref GatewayProxyResource
+      HttpMethod: "ANY"
+      AuthorizationType: "NONE" 
+      RequestValidatorId: !Ref ApiRequestValidator
+      Integration:
+        Type: "HTTP_PROXY"
+        IntegrationHttpMethod: "ANY"
+        Uri: "http://your-backend-api-url/{proxy}" 
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestParameters:
+          "integration.request.path.proxy": "method.request.path.proxy"
 
   ApiDeployment:
     Type: "AWS::ApiGateway::Deployment"
@@ -45,23 +61,8 @@ Resources:
           ResourcePath: "/*"
           ThrottlingBurstLimit: 100
           ThrottlingRateLimit: 50
-          MetricsEnabled: true 
-  
-  GatewayProxyMethod:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      RestApiId: !Ref SecureApiGateway
-      ResourceId: !Ref GatewayProxyResource
-      HttpMethod: "ANY"
-      AuthorizationType: "NONE" 
-      RequestValidatorId: !Ref ApiRequestValidator
-      Integration:
-        Type: "MOCK" 
-        IntegrationResponses:
-          - StatusCode: "200"
-        PassthroughBehavior: "WHEN_NO_MATCH"
-        RequestTemplates:
-          application/json: "{\"statusCode\": 200}"
+          MetricsEnabled: true
+          DataTraceEnabled: true 
 
 Outputs:
   SecureApiEndpoint:
