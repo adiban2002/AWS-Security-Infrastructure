@@ -1,0 +1,15 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::EKS::Service
+      Properties:
+        Name: "your-eks-service-name"
+        Alias: "endpoint"
+        CurrentVersion: "1"
+        TargetVersion: "2"
+Hooks:
+  - BeforeInstall: "BeforeInstallHookFunctionName"
+  - AfterInstall: "AfterInstallHookFunctionName"
+  - AfterAllowTestTraffic: "AfterAllowTestTrafficHookFunctionName"
+  - BeforeAllowTraffic: "BeforeAllowTrafficHookFunctionName"
+  - AfterAllowTraffic: "AfterAllowTrafficHookFunctionName"
