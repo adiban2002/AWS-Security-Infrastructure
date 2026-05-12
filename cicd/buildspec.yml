@@ -2,14 +2,21 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.9
     commands:
-      - echo "Installing Trivy..."
+      - echo "Installing kubectl and Trivy..."
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
       - wget https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.tar.gz
       - tar zxvf trivy_0.18.3_Linux-64bit.tar.gz
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo "Updating kubeconfig for EKS..."
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name devsecops-eks
       - echo "Running Trivy Scan..."
       - ./trivy fs --severity HIGH,CRITICAL --exit-code 0 .
   build:
@@ -22,11 +29,12 @@ phases:
       - echo "Pushing Docker Image..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo "Generating imagedefinitions.json..."
-      - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
+      - echo "Deploying to EKS..."
+      - kubectl apply -f kubernetes/deployment.yaml
+      - kubectl apply -f kubernetes/service.yaml
+      - kubectl apply -f kubernetes/ingress.yaml
+      - echo "Deployment Completed Successfully on devsecops-eks!"
 
 artifacts:
   files:
-    - imagedefinitions.json
-    - cicd/appspec.yml
-  discard-paths: yes
+    - '**/*'
