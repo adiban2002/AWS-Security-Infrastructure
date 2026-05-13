@@ -9,10 +9,8 @@ phases:
       - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
-      - echo "Installing Trivy..."
-      - wget https://github.com/aquasecurity/trivy/releases/download/v0.51.1/trivy_0.51.1_Linux-64bit.tar.gz
-      - tar zxvf trivy_0.51.1_Linux-64bit.tar.gz
-      - mv trivy /usr/local/bin/
+      - echo "Installing Trivy using official script..."
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.51.1
 
   pre_build:
     commands:
