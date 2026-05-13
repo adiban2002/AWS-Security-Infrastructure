@@ -9,15 +9,19 @@ echo "----------------------------------------"
 echo "Starting Trivy Security Scan for: $IMAGE_NAME"
 echo "----------------------------------------"
 
-if ! command -v trivy &> /dev/null; then
-    echo "Trivy not found. Installing..."
-    wget https://github.com/aquasecurity/trivy/releases/download/v0.49.1/trivy_0.49.1_Linux-64bit.tar.gz
-    tar zxvf trivy_0.49.1_Linux-64bit.tar.gz
-    sudo mv trivy /usr/local/bin/
+if [[ -f "./trivy" ]]; then
+    TRIVY_BIN="./trivy"
+elif command -v trivy &> /dev/null; then
+    TRIVY_BIN="trivy"
+else
+    echo "Trivy not found. Installing locally..."
+    wget https://github.com/aquasecurity/trivy/releases/download/v0.51.1/trivy_0.51.1_Linux-64bit.tar.gz
+    tar zxvf trivy_0.51.1_Linux-64bit.tar.gz
+    chmod +x trivy
+    TRIVY_BIN="./trivy"
 fi
 
-
-trivy image --severity HIGH,CRITICAL --format table "$IMAGE_NAME"
+$TRIVY_BIN image --severity HIGH,CRITICAL --format table "$IMAGE_NAME"
 
 echo "----------------------------------------"
 echo "Trivy Scan Completed Successfully!"
