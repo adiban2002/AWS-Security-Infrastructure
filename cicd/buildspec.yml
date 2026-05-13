@@ -3,27 +3,34 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.9
+      python: 3.12
     commands:
-      - echo "Installing kubectl and Trivy..."
+      - echo "Installing kubectl..."
       - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
-      - wget https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.tar.gz
-      - tar zxvf trivy_0.18.3_Linux-64bit.tar.gz
+      - echo "Installing Trivy..."
+      - wget https://github.com/aquasecurity/trivy/releases/download/v0.49.1/trivy_0.49.1_Linux-64bit.tar.gz
+      - tar zxvf trivy_0.49.1_Linux-64bit.tar.gz
+      - mv trivy /usr/local/bin/
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/devsecops-app
       - echo "Updating kubeconfig for EKS..."
       - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name devsecops-eks
-      - echo "Running Trivy Scan..."
-      - ./trivy fs --severity HIGH,CRITICAL --exit-code 0 .
+
   build:
     commands:
       - echo "Building Docker Image..."
       - docker build -t $REPOSITORY_URI:latest -f docker/Dockerfile .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Running Security Scan on Docker Image..."
+      - chmod +x security_scanning/trivy_scan.sh
+      - ./security_scanning/trivy_scan.sh $REPOSITORY_URI:latest
+
   post_build:
     commands:
       - echo "Pushing Docker Image..."
