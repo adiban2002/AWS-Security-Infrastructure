@@ -1,0 +1,1 @@
+{"status": "403", "statusDescription": "Forbidden", "body": "{\"error\": \"Automated Access Denied\", \"message\": \"Please provide a valid DevSecOps Security Token.\", \"timestamp\": 1778740433}", "headers": {"content-type": [{"key": "Content-Type", "value": "application/json"}]}}
