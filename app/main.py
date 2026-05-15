@@ -1,16 +1,21 @@
 import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 
-from app.routes.routes import router
 from app.utils.config import settings
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL, "INFO"),
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
-
 logger = logging.getLogger("app")
 
 @asynccontextmanager
@@ -25,7 +30,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,14 +39,17 @@ app.add_middleware(
 )
 
 
-app.include_router(router)
+@app.get("/", include_in_schema=False)
+async def serve_ui():
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    return FileResponse(index_path)
 
-@app.get("/", tags=["Health"])
-def root():
-    return {
-        "status": "running",
-        "service": settings.APP_NAME,
-    }
+
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
+
+
+from app.routes.routes import router
+app.include_router(router)
 
 
 @app.get("/health", tags=["Health"])

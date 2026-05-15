@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindMyProject | Cloud & Infrastructure Monitor</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-section">
+            <h2 class="neon-text">FINDMYPROJECT <span class="v2">v2.0</span></h2>
+            <div class="status-badge">
+                <span class="dot"></span>
+                <small>Live: https://findmyproject.com</small>
+            </div>
+        </div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('monitoring')">Infrastructure Monitor</button>
+            <button class="tab-btn" onclick="showTab('api-docs')">API Documentation</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="monitoring" class="tab-content active">
+            <div class="stats-grid">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Security Audit Report</h3>
+                        <span class="badge red">Live Scan</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="auditChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Edge Traffic Analysis</h3>
+                        <span class="badge blue">AWS Shield</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-grid">
+                <div class="card control-panel">
+                    <h3>Control Center</h3>
+                    <div class="button-group">
+                        <button id="btn-audit" class="btn btn-red">Run Security Audit</button>
+                        <button id="btn-health" class="btn btn-blue">Check Cluster Health</button>
+                    </div>
+                    <p class="note">Node: findmyproject-prod-01</p>
+                </div>
+
+                <div class="card terminal-card">
+                    <h3>Live Production Logs</h3>
+                    <div id="terminal-output" class="terminal">
+                        <p class="log-entry">> [INFO] Monitoring active at findmyproject.com</p>
+                        <p class="log-entry">> [SUCCESS] Backend binding to Port 8003 complete.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="api-docs" class="tab-content">
+            <div class="card docs-container">
+                <div class="docs-header">
+                    <h3>Interactive API Explorer (OpenAPI 3.1)</h3>
+                    <code>Host: https://findmyproject.com/docs</code>
+                </div>
+                <iframe src="https://findmyproject.com/docs" frameborder="0" class="swagger-frame"></iframe>
+            </div>
+        </section>
+    </main>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/charts.js"></script>
+    <script src="/frontend/js/app.js"></script>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
