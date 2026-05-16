@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.utils.config import settings
 
@@ -28,13 +29,13 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Shutting down application...")
 
-
 app = FastAPI(
     title="DevSecOps Secure Cloud API",
     version="1.0.0",
     lifespan=lifespan,
 )
 
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
 
 app.add_middleware(
     CORSMiddleware,
