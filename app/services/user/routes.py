@@ -8,7 +8,7 @@ class UserCreate(BaseModel):
     user_id: str
     name: str
 
-@user_api_router.post("/")
+@user_api_router.post("")
 def create(user_data: UserCreate):
     try:
         return create_user(user_id=user_data.user_id, name=user_data.name)
