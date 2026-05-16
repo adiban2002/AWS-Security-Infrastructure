@@ -1,5 +1,5 @@
-from app.utils.db_config import SessionLocal, Base, engine
 from sqlalchemy import Column, String
+from app.utils.db_config import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -8,6 +8,8 @@ class User(Base):
 
 def create_user(user_id: str, name: str):
     try:
+        from app.utils.db_config import SessionLocal
+        
         with SessionLocal() as db:
             new_user = User(user_id=user_id, name=name)
             db.add(new_user)
@@ -18,6 +20,8 @@ def create_user(user_id: str, name: str):
 
 def get_user(user_id: str):
     try:
+        from app.utils.db_config import SessionLocal
+        
         with SessionLocal() as db:
             return db.query(User).filter(User.user_id == user_id).first()
     except Exception as e:
