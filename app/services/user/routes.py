@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from .service import create_user, get_user
 
 user_api_router = APIRouter(prefix="/user", tags=["User"])
-
 class UserCreate(BaseModel):
     user_id: str
     name: str
