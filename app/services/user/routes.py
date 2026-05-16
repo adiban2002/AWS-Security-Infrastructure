@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Body
 from pydantic import BaseModel
 from .service import create_user, get_user
 
@@ -9,7 +9,7 @@ class UserCreate(BaseModel):
 
 @user_api_router.post("/",redirect_slashes=False)
 @user_api_router.post("",redirect_slashes=False)
-def create(user_data: UserCreate):
+def create(user_data: UserCreate=Body(...)):
     try:
         return create_user(user_id=user_data.user_id, name=user_data.name)
     except Exception as e:
