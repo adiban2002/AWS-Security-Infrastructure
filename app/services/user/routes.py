@@ -13,7 +13,7 @@ def create(user_data: UserCreate):
     try:
         return create_user(user_id=user_data.user_id, name=user_data.name)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Database level issue: {str(e)}")
 
 @user_api_router.get("/{user_id}")
 def fetch(user_id: str):
