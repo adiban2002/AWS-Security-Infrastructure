@@ -11,6 +11,7 @@ logger = logging.getLogger("routes")
 router = APIRouter(
     prefix="/api/v1",
     tags=["API"],
+    redirect_slashes=False
 )
 
 def verify_request():
