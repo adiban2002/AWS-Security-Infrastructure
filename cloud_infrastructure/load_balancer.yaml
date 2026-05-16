@@ -63,18 +63,18 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Port: 80
+      Port: 8003
       Protocol: HTTP
       VpcId: !ImportValue DevSecOps-VPC-ID
       TargetType: instance
       HealthCheckEnabled: true
-      HealthCheckPath: /
+      HealthCheckPath: /health
       HealthCheckIntervalSeconds: 30
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 5
       Matcher:
-        HttpCode: "200-399"
+        HttpCode: "200"
 
   HTTPListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
