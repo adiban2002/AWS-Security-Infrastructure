@@ -8,10 +8,8 @@ from contextlib import asynccontextmanager
 
 from app.utils.config import settings
 
-
 BASE_DIR = os.getcwd() 
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL, "INFO"),
@@ -46,13 +44,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
 
-from app.routes.routes import router
-app.include_router(router)
+
+from app.routes.routes import router as api_router
+app.include_router(api_router)
 
 
 @app.get("/", include_in_schema=False)
@@ -61,7 +59,6 @@ async def serve_ui():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     
-   
     return {
         "error": "Frontend build not found",
         "current_working_dir": BASE_DIR,
