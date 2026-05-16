@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 import logging
 from app.services.aws_service import parameter_store, secrets_manager
 from app.services.auth.routes import router as auth_router
-from app.services.user.routes import user_api_router
 from app.services.payment.routes import router as payment_router
 from app.services.notifications.routes import router as notifications_router
+from app.services.user.routes import user_api_router
+
 logger = logging.getLogger("routes")
+
 router = APIRouter(
     prefix="/api/v1",
     tags=["API"],
@@ -60,6 +62,6 @@ def route_health():
     return {"route": "healthy"}
 
 router.include_router(auth_router)
-router.include_router(user_api_router)
+router.include_router(user_api_router)  
 router.include_router(payment_router)
 router.include_router(notifications_router)
