@@ -5,11 +5,10 @@ metadata:
   labels:
     app: devsecops-app
 spec:
-  # 🚀 ALB-র জন্য NodePort ব্যবহার করা স্ট্যান্ডার্ড
   type: NodePort 
   selector:
     app: devsecops-app
   ports:
     - protocol: TCP
-      port: 80         # লোড ব্যালেন্সার এই পোর্টে লিসেন করবে
-      targetPort: 8003 # তোমার অ্যাপ কন্টেইনারের আসল পোর্ট
+      port: 80         
+      targetPort: 8003 

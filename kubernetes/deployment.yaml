@@ -14,8 +14,13 @@ spec:
       labels:
         app: devsecops-app
     spec:
-      # 🚀 এই লাইনটি তোমার তৈরি করা IAM Service Account-কে পডের সাথে যুক্ত করবে
       serviceAccountName: devsecops-app-sa 
+      
+     
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 65534
+
       containers:
       - name: devsecops-container
         image: 800557028391.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:v3
@@ -30,7 +35,6 @@ spec:
             cpu: "500m"
             memory: "512Mi"
         
-        # এখানে কোনো হার্ডকোডেড AWS Key দেওয়ার দরকার নেই, টোকেন দিয়ে কাজ হবে
         env:
           - name: AWS_DEFAULT_REGION
             value: "ap-south-1"
