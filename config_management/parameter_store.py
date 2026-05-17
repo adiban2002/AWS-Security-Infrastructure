@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 class ParameterStore:
     def __init__(self, region_name="ap-south-1"):
         self.session = boto3.Session()
-        self.client = boto3.client('ssm', region_name=region_name)
+        self.client = self.session.client('ssm', region_name=region_name)
 
     def get_parameter(self, parameter_name, decrypt=False):
         try:
